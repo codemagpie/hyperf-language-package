@@ -214,40 +214,40 @@ class LanguageService
     /**
      * 获取配置列表.
      */
-    public function getConfigs(string $name = '', string $entryCode = '', string $notTransLocale = '', int $moduleId = 0, int $page = 1, int $pageSize = 10): array
+    public function getConfigs(array $queryParams): array
     {
         $query = $this->getConnection()
             ->table('language_config')
             ->orderBy('id', 'desc');
-        if ($name) {
-            $query->where('name', 'like', "%{$name}%");
+        if (! empty($queryParams['entry_name'])) {
+            $query->where('name', 'like', "%{$queryParams['entry_name']}%");
         }
-        if ($entryCode) {
-            $query->where('entry_code', $entryCode);
+        if (! empty($queryParams['entry_code'])) {
+            $query->where('entry_code', $queryParams['entry_code']);
         }
-        if ($moduleId) {
-            $query->whereIn('module_id', $this->getSubModuleIds($moduleId));
+        if (! empty($queryParams['module_id'])) {
+            $query->whereIn('module_id', $this->getSubModuleIds((int) $queryParams['module_id']));
         }
-        if ($notTransLocale) {
+        if (! empty($queryParams['not_trans_locale'])) {
             $query->whereIn(
                 'id',
                 $this->getConnection()
                     ->table('language_config')
                     ->select('language_config.id as id')
                     ->leftJoin('language_translation', 'language_config.entry_code', '=', 'language_translation.entry_code')
-                    ->where(function ($builder) use ($notTransLocale) {
-                        $builder->where('language_translation.locale', $notTransLocale)
+                    ->where(function ($builder) use ($queryParams) {
+                        $builder->where('language_translation.locale', $queryParams['not_trans_locale'])
                             ->where('language_translation.translation', '');
                     })
-                    ->orWhere('language_translation.locale', '!=', $notTransLocale)
+                    ->orWhere('language_translation.locale', '!=', $queryParams['not_trans_locale'])
                     ->groupBy(['language_config.id'])
                     ->orderBy('language_config.id', 'desc')
-                    ->forPage($page, $pageSize)
+                    ->forPage((int) ($queryParams['page'] ?? 1), (int) ($queryParams['page_size'] ?? 1))
                     ->get()->pluck('id')->toArray()
             );
         }
 
-        $list = $query->forPage($page, $pageSize)->get();
+        $list = $query->forPage((int) ($queryParams['page'] ?? 1), (int) ($queryParams['page_size'] ?? 1))->get();
         if ($list->isEmpty()) {
             return [];
         }
