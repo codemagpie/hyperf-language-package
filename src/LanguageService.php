@@ -179,8 +179,8 @@ class LanguageService
     public function updateTransConfig(UpdateTransConfigCommand $command): void
     {
         // 判断词条是否已存在
-        if ($config = $this->getConnection()->table('language_config')->where('id', $command->getId())->first()) {
-            throw new \InvalidArgumentException('词条已存在');
+        if (! $config = $this->getConnection()->table('language_config')->where('id', $command->getId())->first()) {
+            throw new \InvalidArgumentException('词条不存在');
         }
         // 判断模块是否存在
         if (! $this->getConnection()->table('language_module')->where('id', $command->getModuleId())->exists()) {

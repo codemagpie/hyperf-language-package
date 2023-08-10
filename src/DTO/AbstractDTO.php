@@ -24,6 +24,9 @@ abstract class AbstractDTO
         $properties = $reflection->getProperties();
 
         foreach ($properties as $property) {
+            if (! isset($attributes[$property->getName()])) {
+                continue;
+            }
             $type = $property->getType();
             $value = $attributes[$property->getName()];
             if ($type) {
