@@ -19,12 +19,9 @@ class UpdateModuleCommand extends AbstractDTO
 
     protected string $description;
 
-    protected int $updated_at;
-
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
-        $this->updated_at = time();
     }
 
     public function validateRules(): array
@@ -55,10 +52,5 @@ class UpdateModuleCommand extends AbstractDTO
     public function getDescription(): string
     {
         return $this->description;
-    }
-
-    public function getUpdatedAt(): int
-    {
-        return $this->updated_at;
     }
 }

@@ -30,9 +30,16 @@ class LanguageService
      */
     public function createModule(CreateModuleCommand $command): int
     {
+        $time = time();
         return $this->getConnection()
             ->table('language_module')
-            ->insertGetId($command->toArray());
+            ->insertGetId([
+                'name' => $command->getName(),
+                'parent_id' => $command->getParentId(),
+                'description' => $command->getDescription(),
+                'created_at' => $time,
+                'updated_at' => $time,
+            ]);
     }
 
     /**
@@ -45,14 +52,14 @@ class LanguageService
         if (in_array($command->getParentId(), $subModuleIds, true)) {
             throw new \InvalidArgumentException('父模块不能是自己和自己的子模块');
         }
-
+        $time = time();
         $this->getConnection()->table('language_module')
             ->where('id', $command->getId())
             ->update([
                 'name' => $command->getName(),
                 'parent_id' => $command->getParentId(),
                 'description' => $command->getDescription(),
-                'updated_at' => $command->getUpdatedAt(),
+                'updated_at' => $time,
             ]);
     }
 

@@ -20,8 +20,16 @@ abstract class AbstractDTO
         if ($validator->fails()) {
             throw new ValidationException($validator, $validator->errors()->getMessages());
         }
-        foreach ($attributes as $key => $value) {
-            $this->{$key} = $value;
+        $reflection = new \ReflectionClass($this);
+        $properties = $reflection->getProperties();
+
+        foreach ($properties as $property) {
+            $type = $property->getType();
+            $value = $attributes[$property->getName()];
+            if ($type) {
+                settype($value, $type->getName());
+            }
+            $this->{$property->getName()} = $value;
         }
     }
 

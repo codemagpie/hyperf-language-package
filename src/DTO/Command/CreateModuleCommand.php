@@ -17,14 +17,9 @@ class CreateModuleCommand extends AbstractDTO
 
     protected string $description;
 
-    protected int $created_at;
-
-    protected int $updated_at;
-
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
-        $this->created_at = $this->updated_at = time();
     }
 
     public function getName(): string
@@ -40,16 +35,6 @@ class CreateModuleCommand extends AbstractDTO
     public function getDescription(): string
     {
         return $this->description;
-    }
-
-    public function getCreatedAt(): int
-    {
-        return $this->created_at;
-    }
-
-    public function getUpdatedAt(): int
-    {
-        return $this->updated_at;
     }
 
     public function validateRules(): array
