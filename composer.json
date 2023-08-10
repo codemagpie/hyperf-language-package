@@ -34,5 +34,10 @@
         "psr-4": {
             "CodeMagpie\\HyperfLanguagePackageTests\\": "tests/"
         }
+    },
+    "extra": {
+        "hyperf": {
+            "config": "CodeMagpie\\HyperfLanguagePackage\\ConfigProvider"
+        }
     }
 }
