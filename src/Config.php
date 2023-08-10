@@ -21,6 +21,8 @@ class Config
 
     protected ?string $defaultValue;
 
+    protected string $routePrefix;
+
     public function __construct(ConfigInterface $config)
     {
         $configArr = $config->get('douyu_language_translation') ?: [];
@@ -29,6 +31,7 @@ class Config
         $this->fallbackLocale = $configArr['fallback_locale'] ?? null;
         $this->replaceSymbol = $configArr['replace_symbol'] ?? ':fill';
         $this->defaultValue = $configArr['default_value'] ?? null;
+        $this->routePrefix = $configArr['route_prefix'] ?? '';
     }
 
     public function getDbConnection(): string
@@ -54,5 +57,10 @@ class Config
     public function getDefaultValue(): string
     {
         return $this->defaultValue;
+    }
+
+    public function getRoutePrefix(): string
+    {
+        return $this->routePrefix;
     }
 }

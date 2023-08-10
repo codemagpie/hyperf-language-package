@@ -11,4 +11,5 @@ return [
     'locale' => 'zh_CN', // 默认语言
     'fallback_locale' => 'en', // 如果使用默认语言找不到值,则使用这个语言,设置为null时,就不会使用这个语言
     'default_value' => null, // 如果找不到值,则使用这个默认值, 设置为null则返回的是词条编码
+    'route_prefix' => '/douyu', // 路由前缀
 ];
