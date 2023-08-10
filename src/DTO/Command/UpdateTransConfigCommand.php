@@ -5,10 +5,10 @@ declare(strict_types=1);
  * This file belong to douYuTech, all rights reserved.
  * (c) DouYuTech <https://www.douyutech.cn/>
  */
-namespace Douyu\HyperfLanguagePackage\DTO\Command;
+namespace CodeMagpie\HyperfLanguagePackage\DTO\Command;
 
-use Douyu\HyperfLanguagePackage\DTO\AbstractDTO;
-use Douyu\HyperfLanguagePackage\DTO\Meta\Translation;
+use CodeMagpie\HyperfLanguagePackage\DTO\AbstractDTO;
+use CodeMagpie\HyperfLanguagePackage\DTO\Meta\Translation;
 
 class UpdateTransConfigCommand extends AbstractDTO
 {

@@ -5,9 +5,9 @@ declare(strict_types=1);
  * This file belong to douYuTech, all rights reserved.
  * (c) DouYuTech <https://www.douyutech.cn/>
  */
-namespace Douyu\HyperfLanguagePackage\DTO\Meta;
+namespace CodeMagpie\HyperfLanguagePackage\DTO\Meta;
 
-use Douyu\HyperfLanguagePackage\DTO\AbstractDTO;
+use CodeMagpie\HyperfLanguagePackage\DTO\AbstractDTO;
 
 class Translation extends AbstractDTO
 {

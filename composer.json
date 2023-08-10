@@ -1,5 +1,5 @@
 {
-    "name": "douyu/hyperf-language-package",
+    "name": "codemagpie/hyperf-language-package",
     "type": "library",
     "license": "MIT",
     "require": {
@@ -27,12 +27,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Douyu\\HyperfLanguagePackage\\": "src/"
+            "CodeMagpie\\HyperfLanguagePackage\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Douyu\\HyperfLanguagePackageTests\\": "tests/"
+            "CodeMagpie\\HyperfLanguagePackageTests\\": "tests/"
         }
     }
 }

@@ -5,7 +5,7 @@ declare(strict_types=1);
  * This file belong to douYuTech, all rights reserved.
  * (c) DouYuTech <https://www.douyutech.cn/>
  */
-namespace Douyu\HyperfLanguagePackage;
+namespace CodeMagpie\HyperfLanguagePackage;
 
 class ConfigProvider
 {

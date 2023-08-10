@@ -5,13 +5,13 @@ declare(strict_types=1);
  * This file belong to douYuTech, all rights reserved.
  * (c) DouYuTech <https://www.douyutech.cn/>
  */
-namespace Douyu\HyperfLanguagePackage;
+namespace CodeMagpie\HyperfLanguagePackage;
 
-use Douyu\HyperfLanguagePackage\DTO\Command\CreateModuleCommand;
-use Douyu\HyperfLanguagePackage\DTO\Command\CreateTransConfigCommand;
-use Douyu\HyperfLanguagePackage\DTO\Command\UpdateModuleCommand;
-use Douyu\HyperfLanguagePackage\DTO\Command\UpdateTransConfigCommand;
-use Douyu\HyperfLanguagePackage\DTO\Meta\Translation;
+use CodeMagpie\HyperfLanguagePackage\DTO\Command\CreateModuleCommand;
+use CodeMagpie\HyperfLanguagePackage\DTO\Command\CreateTransConfigCommand;
+use CodeMagpie\HyperfLanguagePackage\DTO\Command\UpdateModuleCommand;
+use CodeMagpie\HyperfLanguagePackage\DTO\Command\UpdateTransConfigCommand;
+use CodeMagpie\HyperfLanguagePackage\DTO\Meta\Translation;
 use Hyperf\Database\ConnectionInterface;
 use Hyperf\DbConnection\Db;
 use Hyperf\Utils\Collection;
