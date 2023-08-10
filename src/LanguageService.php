@@ -242,12 +242,12 @@ class LanguageService
                     ->orWhere('language_translation.locale', '!=', $queryParams['not_trans_locale'])
                     ->groupBy(['language_config.id'])
                     ->orderBy('language_config.id', 'desc')
-                    ->forPage((int) ($queryParams['page'] ?? 1), (int) ($queryParams['page_size'] ?? 1))
+                    ->forPage((int) ($queryParams['page'] ?? 1), (int) ($queryParams['page_size'] ?? 10))
                     ->get()->pluck('id')->toArray()
             );
         }
 
-        $list = $query->forPage((int) ($queryParams['page'] ?? 1), (int) ($queryParams['page_size'] ?? 1))->get();
+        $list = $query->forPage((int) ($queryParams['page'] ?? 1), (int) ($queryParams['page_size'] ?? 10))->get();
         if ($list->isEmpty()) {
             return [];
         }
@@ -257,8 +257,14 @@ class LanguageService
             ->where('locale', $this->config->getLocale())
             ->whereIn('entry_code', $list->pluck('entry_code')->toArray())
             ->get();
-        return $list->map(function ($item) use ($translations) {
+        // 查找模块名称
+        $modules = $this->getConnection()->table('language_module')
+            ->select(['id', 'name'])
+            ->whereIn('id', $list->pluck('module_id')->toArray())
+            ->get();
+        return $list->map(function ($item) use ($translations, $modules) {
             $item = (array) $item;
+            $item['module_name'] = $modules->where('id', $item['module_id'])->first()->name ?? '';
             $item['translation'] = $translations->where('entry_code', $item['entry_code'])->first()->translation ?? '';
             return $item;
         })->toArray();
@@ -276,7 +282,7 @@ class LanguageService
         if (! $config) {
             return [];
         }
-        // 添加翻译
+        // 查找翻译
         $translations = $this->getConnection()->table('language_translation')
             ->where('entry_code', $config->entry_code)
             ->get();
