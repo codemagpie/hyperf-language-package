@@ -220,7 +220,7 @@ class LanguageService
             ->table('language_config')
             ->orderBy('id', 'desc');
         if (! empty($queryParams['entry_name'])) {
-            $query->where('name', 'like', "%{$queryParams['entry_name']}%");
+            $query->where('entry_name', 'like', "%{$queryParams['entry_name']}%");
         }
         if (! empty($queryParams['entry_code'])) {
             $query->where('entry_code', $queryParams['entry_code']);
