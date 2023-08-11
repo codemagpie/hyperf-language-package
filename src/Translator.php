@@ -25,7 +25,7 @@ class Translator implements TranslatorInterface
     }
 
     /**
-     * @Cacheable(prefix="language:trans", ttl=60)
+     * @Cacheable(prefix="language:trans", ttl=60, value="_#{key}:#{locale}")
      */
     public function trans(string $key, array $replace = [], ?string $locale = null)
     {
