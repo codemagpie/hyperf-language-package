@@ -30,10 +30,7 @@ class Translator implements TranslatorInterface
             $trans = $this->languageService->translate($key, $this->config->getFallbackLocale());
         }
         if (! $trans) {
-            if (is_null($this->config->getDefaultValue())) {
-                return $key;
-            }
-            return $this->config->getDefaultValue();
+            return $key;
         }
         foreach ($replace as $k => $value) {
             $trans = str_replace(str_replace('fill', $k, $this->config->getReplaceSymbol()), $value, $trans);
