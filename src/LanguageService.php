@@ -300,7 +300,7 @@ class LanguageService
     {
         return $this->getConnection()
             ->table('language_translation')
-            ->where('key', $key)
+            ->where('entry_code', $key)
             ->where('locale', $locale)
             ->value('translation') ?: '';
     }
