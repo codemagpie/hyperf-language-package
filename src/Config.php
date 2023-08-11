@@ -19,8 +19,6 @@ class Config
 
     protected string $replaceSymbol;
 
-    protected ?string $defaultValue;
-
     protected string $routePrefix;
 
     public function __construct(ConfigInterface $config)
@@ -30,7 +28,6 @@ class Config
         $this->locale = $configArr['locale'] ?? 'zh_CN';
         $this->fallbackLocale = $configArr['fallback_locale'] ?? null;
         $this->replaceSymbol = $configArr['replace_symbol'] ?? ':fill';
-        $this->defaultValue = $configArr['default_value'] ?? null;
         $this->routePrefix = $configArr['route_prefix'] ?? '';
     }
 
@@ -44,7 +41,7 @@ class Config
         return $this->locale;
     }
 
-    public function getFallbackLocale(): string
+    public function getFallbackLocale(): ?string
     {
         return $this->fallbackLocale;
     }
@@ -52,11 +49,6 @@ class Config
     public function getReplaceSymbol(): string
     {
         return $this->replaceSymbol;
-    }
-
-    public function getDefaultValue(): string
-    {
-        return $this->defaultValue;
     }
 
     public function getRoutePrefix(): string
