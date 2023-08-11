@@ -13,7 +13,8 @@
         "hyperf/constants": "^2.2",
         "hyperf/db": "^2.2",
         "hyperf/db-connection": "^2.2",
-        "hyperf/validation": "^2.2"
+        "hyperf/validation": "^2.2",
+        "hyperf/cache": "^2.2"
     },
     "prefer-stable": true,
     "config": {

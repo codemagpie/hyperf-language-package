@@ -10,6 +10,7 @@ namespace CodeMagpie\HyperfLanguagePackage;
 use Hyperf\Contract\TranslatorInterface;
 use Hyperf\Utils\Codec\Json;
 use Hyperf\Utils\Context;
+use Hyperf\Cache\Annotation\Cacheable;
 
 class Translator implements TranslatorInterface
 {
@@ -23,6 +24,9 @@ class Translator implements TranslatorInterface
         $this->config = $config;
     }
 
+    /**
+     * @Cacheable(prefix="language:trans", ttl=60)
+     */
     public function trans(string $key, array $replace = [], ?string $locale = null)
     {
         $trans = $this->languageService->translate($key, $locale ?: $this->getLocale());
