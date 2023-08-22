@@ -7,10 +7,9 @@ declare(strict_types=1);
  */
 namespace CodeMagpie\HyperfLanguagePackage;
 
+use Hyperf\Context\Context;
 use Hyperf\Contract\TranslatorInterface;
 use Hyperf\Utils\Codec\Json;
-use Hyperf\Utils\Context;
-use Hyperf\Cache\Annotation\Cacheable;
 
 class Translator implements TranslatorInterface
 {
@@ -24,18 +23,23 @@ class Translator implements TranslatorInterface
         $this->config = $config;
     }
 
-    /**
-     * @Cacheable(prefix="language:trans", ttl=60, value="_#{key}:#{locale}")
-     */
     public function trans(string $key, array $replace = [], ?string $locale = null)
     {
-        $trans = $this->languageService->translate($key, $locale ?: $this->getLocale());
-        if (! $trans && ! is_null($this->config->getFallbackLocale())) {
-            $trans = $this->languageService->translate($key, $this->config->getFallbackLocale());
+        $contextKey = __METHOD__ . '::' . $key . '::' . $locale;
+        if (! $trans = Context::get($contextKey)) {
+            $trans = $this->languageService->translate($key, $locale ?: $this->getLocale());
+            if (! $trans && ! is_null($this->config->getFallbackLocale())) {
+                $trans = $this->languageService->translate($key, $this->config->getFallbackLocale());
+            }
+            if (! $trans) {
+                $trans = $key;
+            }
+            Context::set($contextKey, $trans);
         }
-        if (! $trans) {
-            return $key;
+        if ($key === $trans) {
+            return $trans;
         }
+
         foreach ($replace as $k => $value) {
             $trans = str_replace(str_replace('fill', $k, $this->config->getReplaceSymbol()), $value, $trans);
         }

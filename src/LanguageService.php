@@ -329,7 +329,7 @@ class LanguageService
             }
             $data[] = $query->get()->map(function ($item) {
                 return (array) $item;
-            });
+            })->toArray();
         }
         return array_merge(...$data);
     }
