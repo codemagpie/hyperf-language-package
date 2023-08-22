@@ -17,7 +17,7 @@ class UpdateModuleCommand extends AbstractDTO
 
     protected int $parent_id;
 
-    protected string $description;
+    protected string $description = '';
 
     public function __construct(array $attributes = [])
     {
