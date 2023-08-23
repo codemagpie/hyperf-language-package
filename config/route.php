@@ -36,6 +36,11 @@ Router::addGroup($prefix, function () {
         return $languageService->getModules($params['name'] ?? '', (int) ($params['page'] ?? 1), (int) ($params['page_size'] ?? 10));
     });
 
+    Router::get('/lang/modules/tree', function (RequestInterface $request, LanguageService $languageService) {
+        $params = $request->all();
+        return $languageService->getModulesTree($params['parent_ids'] ?? [0]);
+    });
+
     Router::get('/lang/sub_modules', function (RequestInterface $request, LanguageService $languageService) {
         $params = $request->all();
         return $languageService->getSubModules((int) ($params['parent_id'] ?? 0), $params['name'] ?? '');

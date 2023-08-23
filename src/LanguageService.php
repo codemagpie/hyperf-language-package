@@ -131,6 +131,26 @@ class LanguageService
     }
 
     /**
+     * 获取模块树.
+     */
+    public function getModulesTree(array $parentIds = [0]): array
+    {
+        $modules = $this->getConnection()->table('language_module')
+            ->select(['id', 'parent_id', 'name'])
+            ->whereIn('parent_id', $parentIds)
+            ->get();
+        if ($modules->isEmpty()) {
+            return [];
+        }
+        $subModules = Collection::make($this->getModulesTree($modules->pluck('id')->toArray()));
+        return $modules->map(function ($item) use ($subModules) {
+            $item = (array) $item;
+            $item['children'] = $subModules->where('parent_id', $item['id'])->toArray();
+            return $item;
+        })->toArray();
+    }
+
+    /**
      * 添加翻译配置.
      */
     public function createTransConfig(CreateTransConfigCommand $command): int
@@ -308,7 +328,7 @@ class LanguageService
     /**
      * 根据模块id列表获取所有翻译.
      */
-    public function getTranslationsByModuleIds(array $moduleIds, ?string $locale = null): array
+    public function getTranslationsByModuleIds(array $moduleIds, array $locales = []): array
     {
         $data = [];
         foreach (array_chunk(array_values(array_unique($moduleIds)), 1000) as $items) {
@@ -324,8 +344,8 @@ class LanguageService
                 ->table('language_translation')
                 ->select(['entry_code', 'locale', 'translation'])
                 ->whereIn('entry_code', $entryCodes);
-            if ($locale) {
-                $query->where('locale', $locale);
+            if ($locales) {
+                $query->whereIn('locale', $locales);
             }
             $data[] = $query->get()->map(function ($item) {
                 return (array) $item;
