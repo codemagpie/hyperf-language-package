@@ -145,7 +145,7 @@ class LanguageService
         $subModules = Collection::make($this->getModulesTree($modules->pluck('id')->toArray()));
         return $modules->map(function ($item) use ($subModules) {
             $item = (array) $item;
-            $item['children'] = $subModules->where('parent_id', $item['id'])->toArray();
+            $item['children'] = $subModules->where('parent_id', $item['id'])->values()->toArray();
             return $item;
         })->toArray();
     }
