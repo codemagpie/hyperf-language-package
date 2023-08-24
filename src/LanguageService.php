@@ -43,6 +43,23 @@ class LanguageService
     }
 
     /**
+     * 删除模块.
+     */
+    public function delModule(int $id): void
+    {
+        // 判断是否有下级模块
+        if ($this->getConnection()->table('language_module')->where('parent_id', $id)->exists()) {
+            throw new \InvalidArgumentException('该模块下有子模块，不能删除');
+        }
+        // 判断是否有翻译配置
+        if ($this->getConnection()->table('language_config')->where('module_id', $id)->exists()) {
+            throw new \InvalidArgumentException('该模块下有翻译配置，不能删除');
+        }
+        // 删除模块
+        $this->getConnection()->table('language_module')->where('id', $id)->delete();
+    }
+
+    /**
      * 更新模块.
      */
     public function updateModule(UpdateModuleCommand $command): void

@@ -31,6 +31,11 @@ Router::addGroup($prefix, function () {
         return [];
     });
 
+    Router::delete('/lang/module', function (RequestInterface $request, LanguageService $languageService) {
+        $languageService->delModule((int) $request->input('id'));
+        return [];
+    });
+
     Router::get('/lang/modules', function (RequestInterface $request, LanguageService $languageService) {
         $params = $request->all();
         return $languageService->getModules($params['name'] ?? '', (int) ($params['page'] ?? 1), (int) ($params['page_size'] ?? 10));
