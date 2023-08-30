@@ -16,6 +16,8 @@ class UpdateTransConfigCommand extends AbstractDTO
 
     protected string $entry_name;
 
+    protected string $entry_code;
+
     protected int $module_id;
 
     protected string $description = '';
@@ -30,6 +32,7 @@ class UpdateTransConfigCommand extends AbstractDTO
         return [
             'id' => 'required|integer',
             'entry_name' => 'required|string|max:100',
+            'entry_code' => 'required|string|max:60',
             'module_id' => 'required|integer',
             'description' => 'string',
             'translations' => 'array',
@@ -44,6 +47,11 @@ class UpdateTransConfigCommand extends AbstractDTO
     public function getEntryName(): string
     {
         return $this->entry_name;
+    }
+
+    public function getEntryCode(): string
+    {
+        return $this->entry_code;
     }
 
     public function getModuleId(): int

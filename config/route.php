@@ -71,6 +71,11 @@ Router::addGroup($prefix, function () {
         return [];
     });
 
+    Router::delete('/lang/config', function (RequestInterface $request, LanguageService $languageService) {
+        $languageService->delConfig((int) $request->input('id'));
+        return [];
+    });
+
     Router::get('/lang/configs', function (RequestInterface $request, LanguageService $languageService) {
         return $languageService->getConfigs($request->all());
     });

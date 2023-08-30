@@ -223,6 +223,10 @@ class LanguageService
         if (! $this->getConnection()->table('language_module')->where('id', $command->getModuleId())->exists()) {
             throw new \InvalidArgumentException('模块不存在');
         }
+        // 判断词条编码是否存在
+        if ($this->getConnection()->table('language_config')->where('entry_code', $command->getEntryCode())->where('id', '!=', $command->getId())->exists()) {
+            throw new \InvalidArgumentException('词条编码已存在');
+        }
         $this->getConnection()->transaction(function () use ($command, $config) {
             $time = time();
             $this->getConnection()
@@ -231,6 +235,7 @@ class LanguageService
                 ->update([
                     'entry_name' => $command->getEntryName(),
                     'module_id' => $command->getModuleId(),
+                    'entry_code' => $command->getEntryCode(),
                     'description' => $command->getDescription(),
                     'updated_at' => $time,
                 ]);
@@ -240,11 +245,29 @@ class LanguageService
                         'entry_code' => $config->entry_code,
                         'locale' => $translation->getLocale(),
                     ], [
+                        'entry_code' => $command->getEntryCode(),
                         'translation' => $translation->getTranslation(),
                         'created_at' => $time,
                         'updated_at' => $time,
                     ]);
             }
+        });
+    }
+
+    /**
+     * 删除翻译配置.
+     */
+    public function delConfig(int $id): void
+    {
+        // 判断词条是否已存在
+        if (! $config = $this->getConnection()->table('language_config')->where('id', $id)->first()) {
+            throw new \InvalidArgumentException('词条不存在');
+        }
+        $this->getConnection()->transaction(function () use ($id, $config) {
+            // 删除配置
+            $this->getConnection()->table('language_config')->where('id', $id)->delete();
+            // 删除翻译
+            $this->getConnection()->table('language_translation')->where('entry_code', $config->entry_code)->delete();
         });
     }
 
@@ -265,43 +288,31 @@ class LanguageService
         if (! empty($queryParams['module_id'])) {
             $query->whereIn('module_id', $this->getSubModuleIds((int) $queryParams['module_id']));
         }
-        if (! empty($queryParams['not_trans_locale'])) {
-            $query->whereIn(
-                'id',
-                $this->getConnection()
-                    ->table('language_config')
-                    ->select('language_config.id as id')
-                    ->leftJoin('language_translation', 'language_config.entry_code', '=', 'language_translation.entry_code')
-                    ->where(function ($builder) use ($queryParams) {
-                        $builder->where('language_translation.locale', $queryParams['not_trans_locale'])
-                            ->where('language_translation.translation', '');
-                    })
-                    ->orWhere('language_translation.locale', '!=', $queryParams['not_trans_locale'])
-                    ->groupBy(['language_config.id'])
-                    ->orderBy('language_config.id', 'desc')
-                    ->forPage((int) ($queryParams['page'] ?? 1), (int) ($queryParams['page_size'] ?? 10))
-                    ->get()->pluck('id')->toArray()
-            );
+
+        $translations = Collection::make();
+        if (! empty($queryParams['translation'])) {
+            $translations = $this->getConnection()->table('language_translation')
+                ->select(['entry_code', 'translation'])
+                ->where('translation', 'like', "%{$queryParams['translation']}%")
+                ->limit(200)
+                ->get();
+            $translations->isNotEmpty() && $query->whereIn('entry_code', $translations->pluck('entry_code')->toArray());
         }
 
         $list = $query->forPage((int) ($queryParams['page'] ?? 1), (int) ($queryParams['page_size'] ?? 10))->get();
         if ($list->isEmpty()) {
             return [];
         }
-        // 查找翻译
-        $translations = $this->getConnection()->table('language_translation')
-            ->select(['entry_code', 'translation'])
-            ->where('locale', $this->config->getLocale())
-            ->whereIn('entry_code', $list->pluck('entry_code')->toArray())
-            ->get();
-        // 查找模块名称
-        $modules = $this->getConnection()->table('language_module')
-            ->select(['id', 'name'])
-            ->whereIn('id', $list->pluck('module_id')->toArray())
-            ->get();
-        return $list->map(function ($item) use ($translations, $modules) {
+        if (empty($queryParams['translation'])) {
+            // 查找翻译
+            $translations = $this->getConnection()->table('language_translation')
+                ->select(['entry_code', 'translation'])
+                ->where('locale', $this->config->getLocale())
+                ->whereIn('entry_code', $list->pluck('entry_code')->toArray())
+                ->get();
+        }
+        return $list->map(function ($item) use ($translations) {
             $item = (array) $item;
-            $item['module_name'] = $modules->where('id', $item['module_id'])->first()->name ?? '';
             $item['translation'] = $translations->where('entry_code', $item['entry_code'])->first()->translation ?? '';
             return $item;
         })->toArray();
@@ -347,28 +358,17 @@ class LanguageService
      */
     public function getTranslationsByModuleIds(array $moduleIds, array $locales = []): array
     {
-        $data = [];
-        foreach (array_chunk(array_values(array_unique($moduleIds)), 1000) as $items) {
-            $entryCodes = $this->getConnection()
-                ->table('language_config')
-                ->select(['entry_code'])
-                ->whereIn('module_id', $items)
-                ->get()->pluck('entry_code')->toArray();
-            if (! $entryCodes) {
-                continue;
-            }
-            $query = $this->getConnection()
-                ->table('language_translation')
-                ->select(['entry_code', 'locale', 'translation'])
-                ->whereIn('entry_code', $entryCodes);
-            if ($locales) {
-                $query->whereIn('locale', $locales);
-            }
-            $data[] = $query->get()->map(function ($item) {
-                return (array) $item;
-            })->toArray();
+        $query = $this->getConnection()
+            ->table('language_config')
+            ->leftJoin('language_translation', 'language_config.entry_code', '=', 'language_translation.entry_code')
+            ->select(['language_translation.entry_code', 'language_translation.locale', 'language_translation.translation'])
+            ->whereIn('language_translation.module_id', $moduleIds);
+        if ($locales) {
+            $query->whereIn('language_translation.locale', $locales);
         }
-        return array_merge(...$data);
+        return $query->get()->map(function ($item) {
+            return (array) $item;
+        })->toArray();
     }
 
     protected function getConnection(): ConnectionInterface
