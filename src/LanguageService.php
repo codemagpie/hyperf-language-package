@@ -296,7 +296,7 @@ class LanguageService
                 ->where('translation', 'like', "%{$queryParams['translation']}%")
                 ->limit(200)
                 ->get();
-            $translations->isNotEmpty() && $query->whereIn('entry_code', $translations->pluck('entry_code')->toArray());
+            $query->whereIn('entry_code', $translations->pluck('entry_code')->toArray());
         }
 
         $list = $query->forPage((int) ($queryParams['page'] ?? 1), (int) ($queryParams['page_size'] ?? 10))->get();
