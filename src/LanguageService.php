@@ -362,7 +362,7 @@ class LanguageService
             ->table('language_config')
             ->leftJoin('language_translation', 'language_config.entry_code', '=', 'language_translation.entry_code')
             ->select(['language_translation.entry_code', 'language_translation.locale', 'language_translation.translation'])
-            ->whereIn('language_translation.module_id', $moduleIds);
+            ->whereIn('language_config.module_id', $moduleIds);
         if ($locales) {
             $query->whereIn('language_translation.locale', $locales);
         }
