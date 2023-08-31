@@ -367,8 +367,11 @@ class LanguageService
             $query->whereIn('language_translation.locale', $locales);
         }
         return $query->get()->map(function ($item) {
+            if (! $item['entry_code']) {
+                return null;
+            }
             return (array) $item;
-        })->toArray();
+        })->filter()->values()->toArray();
     }
 
     protected function getConnection(): ConnectionInterface

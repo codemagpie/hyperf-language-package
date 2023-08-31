@@ -32,7 +32,8 @@ class CreateTransConfigCommand extends AbstractDTO
             'entry_code' => 'required|string|max:60',
             'module_id' => 'required|integer',
             'description' => 'string',
-            'translations' => 'array',
+            'translations' => 'required|array',
+            'translations.*.locale' => 'required|string',
         ];
     }
 
