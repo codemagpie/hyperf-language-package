@@ -375,7 +375,6 @@ class LanguageService
         if (! empty($queryParams['page']) && ! empty($queryParams['page_size'])) {
             $query->forPage((int) $queryParams['page'], (int) $queryParams['page_size']);
         }
-        $query->orderBy('language_config.id');
         return $query->get()->map(function ($item) {
             if (! $item->entry_code) {
                 return null;
