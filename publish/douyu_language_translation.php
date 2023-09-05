@@ -12,4 +12,5 @@ return [
     'fallback_locale' => 'en', // 如果使用默认语言找不到值,则使用这个语言,设置为null时,就不会使用这个语言
     'default_value' => null, // 如果找不到值,则使用这个默认值, 设置为null则返回的是词条编码
     'route_prefix' => '/douyu', // 路由前缀
+    'load_modules' => [0], // 加载的模块id，会将模块下的所有翻译配置加载到内存中,提高性能
 ];

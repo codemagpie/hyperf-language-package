@@ -7,16 +7,27 @@ declare(strict_types=1);
  */
 namespace CodeMagpie\HyperfLanguagePackage;
 
+use CodeMagpie\HyperfLanguagePackage\Contract\TransConfigInterface;
+use CodeMagpie\HyperfLanguagePackage\Listener\ApplicationBootListener;
+use CodeMagpie\HyperfLanguagePackage\Listener\FetchTransConfigOnBootListener;
+use CodeMagpie\HyperfLanguagePackage\Listener\OnPipeMessageListener;
+use CodeMagpie\HyperfLanguagePackage\Process\TransConfigFetcherProcess;
+
 class ConfigProvider
 {
     public function __invoke(): array
     {
         return [
             'dependencies' => [
+                TransConfigInterface::class => TransConfig::class,
             ],
-            'commands' => [
+            'processes' => [
+                TransConfigFetcherProcess::class,
             ],
             'listeners' => [
+                ApplicationBootListener::class,
+                FetchTransConfigOnBootListener::class,
+                OnPipeMessageListener::class,
             ],
             'annotations' => [
                 'scan' => [

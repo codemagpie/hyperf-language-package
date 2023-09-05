@@ -80,10 +80,13 @@ class LanguageService
             ]);
     }
 
-    public function getSubModuleIds(int $moduleId, bool $includeSelf = true): array
+    /**
+     * @param array|int $moduleId
+     */
+    public function getSubModuleIds($moduleId, bool $includeSelf = true): array
     {
         $subModuleIds = [];
-        $parentIds = [$moduleId];
+        $parentIds = is_array($moduleId) ? $moduleId : [$moduleId];
         do {
             $subModules = $this->getConnection()->table('language_module')
                 ->whereIn('parent_id', $parentIds)
@@ -356,16 +359,26 @@ class LanguageService
     /**
      * 根据模块id列表获取所有翻译.
      */
-    public function getTranslationsByModuleIds(array $moduleIds, array $locales = []): array
+    public function getTranslationsByModuleIds(array $moduleIds, array $locales = [], array $queryParams = []): array
     {
         $query = $this->getConnection()
             ->table('language_config')
             ->leftJoin('language_translation', 'language_config.entry_code', '=', 'language_translation.entry_code')
-            ->select(['language_translation.entry_code', 'language_translation.locale', 'language_translation.translation'])
+            ->select(['language_config.id', 'language_config.module_id', 'language_translation.entry_code', 'language_translation.locale', 'language_translation.translation'])
             ->whereIn('language_config.module_id', $moduleIds);
         if ($locales) {
             $query->whereIn('language_translation.locale', $locales);
         }
+        if (! empty($queryParams['next_id'])) {
+            $query->where('language_config.id', '>', (int) $queryParams['next_id']);
+        }
+        if (! empty($queryParams['updated_at_start'])) {
+            $query->where('language_config.updated_at', '>=', $queryParams['updated_at_start']);
+        }
+        if (! empty($queryParams['page']) && ! empty($queryParams['page_size'])) {
+            $query->forPage((int) $queryParams, (int) $queryParams['page_size']);
+        }
+        $query->orderBy('language_config.id');
         return $query->get()->map(function ($item) {
             if (! $item->entry_code) {
                 return null;
