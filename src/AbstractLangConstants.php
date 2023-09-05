@@ -58,6 +58,9 @@ abstract class AbstractLangConstants
             if (! isset($transList[$locale])) {
                 continue;
             }
+            if (! Str::contains($entryCode, $instance->getPrefix())) {
+                continue;
+            }
             $key = Str::after($entryCode, $instance->getPrefix());
             // 判断key是否是整型
             if (is_numeric($key)) {

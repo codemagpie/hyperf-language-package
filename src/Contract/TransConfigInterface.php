@@ -15,7 +15,7 @@ interface TransConfigInterface
 
     public function get(int $moduleId): array;
 
-    public function getTrans(string $entryCode, string $locale): string;
+    public function getTrans(string $entryCode, string $locale, string $default = ''): string;
 
     public function hasCollection(): bool;
 }

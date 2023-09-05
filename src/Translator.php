@@ -7,19 +7,20 @@ declare(strict_types=1);
  */
 namespace CodeMagpie\HyperfLanguagePackage;
 
+use CodeMagpie\HyperfLanguagePackage\Contract\TransConfigInterface;
 use Hyperf\Context\Context;
 use Hyperf\Contract\TranslatorInterface;
 use Hyperf\Utils\Codec\Json;
 
 class Translator implements TranslatorInterface
 {
-    protected LanguageService $languageService;
+    protected TransConfigInterface $transConfig;
 
     protected Config $config;
 
-    public function __construct(LanguageService $languageService, Config $config)
+    public function __construct(TransConfigInterface $transConfig, Config $config)
     {
-        $this->languageService = $languageService;
+        $this->transConfig = $transConfig;
         $this->config = $config;
     }
 
@@ -27,9 +28,9 @@ class Translator implements TranslatorInterface
     {
         $contextKey = __METHOD__ . '::' . $key . '::' . $locale;
         if (! $trans = Context::get($contextKey)) {
-            $trans = $this->languageService->translate($key, $locale ?: $this->getLocale());
+            $trans = $this->transConfig->getTrans($key, $locale ?: $this->getLocale());
             if (! $trans && ! is_null($this->config->getFallbackLocale())) {
-                $trans = $this->languageService->translate($key, $this->config->getFallbackLocale());
+                $trans = $this->transConfig->getTrans($key, $this->config->getFallbackLocale());
             }
             if (! $trans) {
                 $trans = $key;

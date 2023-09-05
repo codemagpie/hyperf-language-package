@@ -19,14 +19,14 @@ class TransConfig implements TransConfigInterface
         $this->collection = Collection::make($items);
     }
 
-    public function getTrans(string $entryCode, string $locale): string
+    public function getTrans(string $entryCode, string $locale, string $default = ''): string
     {
         foreach ($this->collection->all() as $item) {
             if ($trans = $item[$entryCode][$locale] ?? null) {
                 return $trans;
             }
         }
-        return $entryCode;
+        return $default;
     }
 
     public function set(int $moduleId, string $entryCode, string $locale, string $trans): void
