@@ -51,18 +51,18 @@ class ApplicationBootListener implements ListenerInterface
             throw new \InvalidArgumentException('请配置项目需要加载的模块id列表');
         }
         $subModuleIds = $this->languageService->getSubModuleIds($parentModuleIds);
-        $nextId = null;
+        $page = 1;
+        $pageSize = 10000;
         do {
             $queryParams = [
-                'next_id' => $nextId,
-                'page' => 1,
-                'page_size' => 10000,
+                'page' => $page,
+                'page_size' => $pageSize,
             ];
             $transConfigs = $this->languageService->getTranslationsByModuleIds($subModuleIds, [], $queryParams);
             foreach ($transConfigs as $item) {
-                $nextId = $item['id'];
                 $this->transConfig->set($item['module_id'], $item['entry_code'], $item['locale'], $item['translation']);
             }
+            ++$page;
         } while ($transConfigs);
     }
 }

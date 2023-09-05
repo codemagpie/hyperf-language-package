@@ -86,7 +86,7 @@ class LanguageService
     public function getSubModuleIds($moduleId, bool $includeSelf = true): array
     {
         $subModuleIds = [];
-        $parentIds = is_array($moduleId) ? $moduleId : [$moduleId];
+        $selfIds = $parentIds = is_array($moduleId) ? $moduleId : [$moduleId];
         do {
             $subModules = $this->getConnection()->table('language_module')
                 ->whereIn('parent_id', $parentIds)
@@ -99,7 +99,7 @@ class LanguageService
         } while ($parentIds);
         $subModuleIds = array_merge(...$subModuleIds);
         if ($includeSelf) {
-            array_unshift($subModuleIds, $moduleId);
+            array_unshift($subModuleIds, ...$selfIds);
         }
         return $subModuleIds;
     }
@@ -369,14 +369,11 @@ class LanguageService
         if ($locales) {
             $query->whereIn('language_translation.locale', $locales);
         }
-        if (! empty($queryParams['next_id'])) {
-            $query->where('language_config.id', '>', (int) $queryParams['next_id']);
-        }
         if (! empty($queryParams['updated_at_start'])) {
             $query->where('language_config.updated_at', '>=', $queryParams['updated_at_start']);
         }
         if (! empty($queryParams['page']) && ! empty($queryParams['page_size'])) {
-            $query->forPage((int) $queryParams, (int) $queryParams['page_size']);
+            $query->forPage((int) $queryParams['page'], (int) $queryParams['page_size']);
         }
         $query->orderBy('language_config.id');
         return $query->get()->map(function ($item) {
