@@ -8,7 +8,6 @@ declare(strict_types=1);
 namespace CodeMagpie\HyperfLanguagePackage;
 
 use CodeMagpie\HyperfLanguagePackage\Contract\TransConfigInterface;
-use Hyperf\Context\Context;
 use Hyperf\Contract\TranslatorInterface;
 use Hyperf\Utils\ApplicationContext;
 use Hyperf\Utils\Str;
@@ -46,12 +45,6 @@ abstract class AbstractLangConstants
         if (! $locale) {
             $locale = $instance->translator->getLocale();
         }
-
-        $contextKey = sprintf('%s::%s', __METHOD__, $locale);
-        if ($data = Context::get($contextKey)) {
-            return $data;
-        }
-
         $list = $instance->transConfig->get($instance->getId());
         $data = [];
         foreach ($list as $entryCode => $transList) {
@@ -68,8 +61,6 @@ abstract class AbstractLangConstants
             }
             $data[$key] = $transList[$locale];
         }
-
-        Context::set($contextKey, $data);
         return $data;
     }
 

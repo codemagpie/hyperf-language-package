@@ -26,16 +26,12 @@ class Translator implements TranslatorInterface
 
     public function trans(string $key, array $replace = [], ?string $locale = null)
     {
-        $contextKey = __METHOD__ . '::' . $key . '::' . $locale;
-        if (! $trans = Context::get($contextKey)) {
-            $trans = $this->transConfig->getTrans($key, $locale ?: $this->getLocale());
-            if (! $trans && ! is_null($this->config->getFallbackLocale())) {
-                $trans = $this->transConfig->getTrans($key, $this->config->getFallbackLocale());
-            }
-            if (! $trans) {
-                $trans = $key;
-            }
-            Context::set($contextKey, $trans);
+        $trans = $this->transConfig->getTrans($key, $locale ?: $this->getLocale());
+        if (! $trans && ! is_null($this->config->getFallbackLocale())) {
+            $trans = $this->transConfig->getTrans($key, $this->config->getFallbackLocale());
+        }
+        if (! $trans) {
+            $trans = $key;
         }
         if ($key === $trans) {
             return $trans;
