@@ -40,7 +40,7 @@ class TransConfigFetcherProcess extends AbstractProcess
         $this->config = $container->get(ConfigInterface::class);
         $this->languageService = $container->get(LanguageService::class);
         $this->transConfig = $container->get(TransConfigInterface::class);
-        $this->logger = $container->get(TransConfigInterface::class);
+        $this->logger = $container->get(StdoutLoggerInterface::class);
     }
 
     public function bind($server): void
@@ -56,6 +56,7 @@ class TransConfigFetcherProcess extends AbstractProcess
             throw new \InvalidArgumentException('请配置项目需要加载的模块id列表');
         }
         $subModuleIds = $this->languageService->getSubModuleIds($moduleIds);
+        $refreshRate = (int) $this->config->get('douyu_language_translation.refresh_rate', 60);
         while (true) {
             $queryParams = [
                 'updated_at_start' => Timer::fetchSyncAt(),
@@ -76,7 +77,7 @@ class TransConfigFetcherProcess extends AbstractProcess
                 Timer::refreshSyncAt($queryParams['updated_at_start']);
                 $this->logger->error('Trans Configuration synchronization failed.' . $e->getMessage());
             }
-            sleep(60);
+            sleep($refreshRate);
         }
     }
 
