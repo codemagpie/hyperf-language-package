@@ -31,13 +31,9 @@ class TransConfig implements TransConfigInterface
 
     public function set(int $moduleId, string $entryCode, string $locale, string $trans): void
     {
-        $config = $this->collection->get($moduleId);
-        if ($transList = $config[$entryCode] ?? null) {
-            $transList[$locale] = $trans;
-            $this->collection->put($moduleId, [$entryCode => $transList]);
-            return;
-        }
-        $this->collection->put($moduleId, [$entryCode => [$locale => $trans]]);
+        $config = $this->collection->get($moduleId, []);
+        $config[$entryCode][$locale] = $trans;
+        $this->collection->put($moduleId, $config);
     }
 
     public function get(int $moduleId): array
