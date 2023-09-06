@@ -32,7 +32,6 @@ class TransConfigFetcherProcess extends AbstractProcess
     protected TransConfigInterface $transConfig;
 
     protected StdoutLoggerInterface $logger;
-    protected int $syncAt;
 
     public function __construct(ContainerInterface $container)
     {
@@ -58,6 +57,7 @@ class TransConfigFetcherProcess extends AbstractProcess
         $subModuleIds = $this->languageService->getSubModuleIds($moduleIds);
         $refreshRate = (int) $this->config->get('douyu_language_translation.refresh_rate', 60);
         while (true) {
+            $this->logger->info(sprintf('%s language-package updating...', __CLASS__));
             $queryParams = [
                 'updated_at_start' => Timer::fetchSyncAt(),
             ];
@@ -77,6 +77,7 @@ class TransConfigFetcherProcess extends AbstractProcess
                 Timer::refreshSyncAt($queryParams['updated_at_start']);
                 $this->logger->error('Trans Configuration synchronization failed.' . $e->getMessage());
             }
+            $this->logger->info(sprintf('%s language-package update finish', __CLASS__));
             sleep($refreshRate);
         }
     }

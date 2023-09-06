@@ -11,6 +11,7 @@ use CodeMagpie\HyperfLanguagePackage\Contract\TransConfigInterface;
 use CodeMagpie\HyperfLanguagePackage\LanguageService;
 use CodeMagpie\HyperfLanguagePackage\Utils\Timer;
 use Hyperf\Contract\ConfigInterface;
+use Hyperf\Contract\StdoutLoggerInterface;
 use Hyperf\Event\Contract\ListenerInterface;
 use Hyperf\Framework\Event\BootApplication;
 use Psr\Container\ContainerInterface;
@@ -23,11 +24,14 @@ class ApplicationBootListener implements ListenerInterface
 
     protected TransConfigInterface $transConfig;
 
+    protected StdoutLoggerInterface $logger;
+
     public function __construct(ContainerInterface $container)
     {
         $this->config = $container->get(ConfigInterface::class);
         $this->languageService = $container->get(LanguageService::class);
         $this->transConfig = $container->get(TransConfigInterface::class);
+        $this->logger = $container->get(TransConfigInterface::class);
     }
 
     public function listen(): array
@@ -45,6 +49,7 @@ class ApplicationBootListener implements ListenerInterface
 
     protected function syncTransConfig()
     {
+        $this->logger->info(sprintf('%s language-package loading...', __CLASS__));
         // 进程启动前将翻译配置加载到进程内存中
         $parentModuleIds = $this->config->get('douyu_language_translation.load_modules');
         if (! $parentModuleIds) {
@@ -64,5 +69,6 @@ class ApplicationBootListener implements ListenerInterface
             }
             ++$page;
         } while ($transConfigs);
+        $this->logger->info(sprintf('%s language-package load finish.', __CLASS__));
     }
 }
