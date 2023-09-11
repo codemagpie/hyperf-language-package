@@ -28,9 +28,10 @@ abstract class AbstractLangConstants
 
     abstract public function getPrefix(): string;
 
-    public static function getName($code, string $locale = '')
+    public static function getName($code, string $locale = '', array $replace = [])
     {
-        return self::getList($locale)[$code] ?? $code;
+        $instance = self::getInstance();
+        return $instance->translator->trans($instance->getPrefix() . $code, $replace, $locale);
     }
 
     public static function getCode($name, string $locale = '')

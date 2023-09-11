@@ -31,7 +31,7 @@ class ApplicationBootListener implements ListenerInterface
         $this->config = $container->get(ConfigInterface::class);
         $this->languageService = $container->get(LanguageService::class);
         $this->transConfig = $container->get(TransConfigInterface::class);
-        $this->logger = $container->get(TransConfigInterface::class);
+        $this->logger = $container->get(StdoutLoggerInterface::class);
     }
 
     public function listen(): array
