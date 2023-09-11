@@ -48,7 +48,12 @@ class TransConfigFetcherProcess extends AbstractProcess
         parent::bind($server);
     }
 
-    public function handle(): void
+    public function isEnable($server): bool
+    {
+        return (bool) $this->config->get('douyu_language_translation.enable_process');
+    }
+
+    public function handle($manual = false): void
     {
         $moduleIds = $this->config->get('douyu_language_translation.load_modules');
         if (! $moduleIds) {
@@ -56,12 +61,13 @@ class TransConfigFetcherProcess extends AbstractProcess
         }
         $subModuleIds = $this->languageService->getSubModuleIds($moduleIds);
         $refreshRate = (int) $this->config->get('douyu_language_translation.refresh_rate', 60);
+        $transConfigs = [];
         while (true) {
-            $this->logger->info(sprintf('%s language-package updating...', __CLASS__));
-            $queryParams = [
-                'updated_at_start' => Timer::fetchSyncAt(),
-            ];
             try {
+                $this->logger->info(sprintf('%s language-package updating...', __CLASS__));
+                $queryParams = [
+                    'updated_at_start' => Timer::fetchSyncAt(),
+                ];
                 $transConfigs = $this->languageService->getTranslationsByModuleIds($subModuleIds, [], $queryParams);
                 if ($transConfigs) {
                     foreach ($transConfigs as $item) {
@@ -78,6 +84,9 @@ class TransConfigFetcherProcess extends AbstractProcess
                 $this->logger->error('Trans Configuration synchronization failed.' . $e->getMessage());
             }
             $this->logger->info(sprintf('%s language-package update finish', __CLASS__));
+            if ($manual && ! $transConfigs) {
+                break;
+            }
             sleep($refreshRate);
         }
     }
