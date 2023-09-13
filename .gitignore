@@ -4,4 +4,4 @@ vendor/
 *.lock
 .DS_Store
 .phpunit.result.cache
-cache/sync-at.txt
+sync-at.txt
