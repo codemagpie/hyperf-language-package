@@ -11,7 +11,7 @@ class Timer
 {
     public static function fetchSyncAt(): int
     {
-        $file = __DIR__ . '/../../cache/sync-at.txt';
+        $file = __DIR__ . '/../../sync-at.txt';
         $syncAt = file_get_contents($file);
         if (! $syncAt) {
             $syncAt = time();

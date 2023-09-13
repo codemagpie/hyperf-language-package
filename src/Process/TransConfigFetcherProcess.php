@@ -62,18 +62,18 @@ class TransConfigFetcherProcess extends AbstractProcess
         $subModuleIds = $this->languageService->getSubModuleIds($moduleIds);
         $refreshRate = (int) $this->config->get('douyu_language_translation.refresh_rate', 60);
         $transConfigs = [];
+        $queryParams = [
+            'updated_at_start' => Timer::fetchSyncAt(),
+        ];
         while (true) {
             try {
                 $this->logger->info(sprintf('%s language-package updating...', __CLASS__));
-                $queryParams = [
-                    'updated_at_start' => Timer::fetchSyncAt(),
-                ];
                 $transConfigs = $this->languageService->getTranslationsByModuleIds($subModuleIds, [], $queryParams);
                 if ($transConfigs) {
+                    Timer::refreshSyncAt(time());
                     foreach ($transConfigs as $item) {
                         $this->transConfig->set($item['module_id'], $item['entry_code'], $item['locale'], $item['translation']);
                     }
-                    Timer::refreshSyncAt(time());
                     // 通过进程间通信,发送到每个进程
                     $message = new PipeMessage($transConfigs);
                     $this->shareMessageToWorkers($message);
