@@ -82,6 +82,6 @@ Router::addGroup($prefix, function () {
 
     Router::get('/lang/config_info', function (RequestInterface $request, LanguageService $languageService) {
         $params = $request->all();
-        return $languageService->getConfigInfo((int) ($params['id'] ?? 0));
+        return $languageService->getConfigInfo($params);
     });
 });

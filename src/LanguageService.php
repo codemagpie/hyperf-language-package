@@ -324,12 +324,17 @@ class LanguageService
     /**
      * 获取配置详情.
      */
-    public function getConfigInfo(int $id): array
+    public function getConfigInfo(array $queryParams): array
     {
-        $config = $this->getConnection()
-            ->table('language_config')
-            ->where('id', $id)
-            ->first();
+        $query = $this->getConnection()
+            ->table('language_config');
+        if (! empty($queryParams['entry_code'])) {
+            $query->where('entry_code', $queryParams['entry_code']);
+        }
+        if (! empty($queryParams['id'])) {
+            $query->whereIn('id', $queryParams['id']);
+        }
+        $config = $query->first();
         if (! $config) {
             return [];
         }
