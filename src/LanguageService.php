@@ -332,7 +332,7 @@ class LanguageService
             $query->where('entry_code', $queryParams['entry_code']);
         }
         if (! empty($queryParams['id'])) {
-            $query->whereIn('id', $queryParams['id']);
+            $query->where('id', $queryParams['id']);
         }
         $config = $query->first();
         if (! $config) {
