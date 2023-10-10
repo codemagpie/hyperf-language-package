@@ -7,6 +7,7 @@ declare(strict_types=1);
  */
 namespace CodeMagpie\HyperfLanguagePackage;
 
+use CodeMagpie\HyperfLanguagePackage\DTO\Command\BatchUpdateOrCreateTransConfigCommand;
 use CodeMagpie\HyperfLanguagePackage\DTO\Command\CreateModuleCommand;
 use CodeMagpie\HyperfLanguagePackage\DTO\Command\CreateTransConfigCommand;
 use CodeMagpie\HyperfLanguagePackage\DTO\Command\UpdateModuleCommand;
@@ -40,6 +41,40 @@ class LanguageService
                 'created_at' => $time,
                 'updated_at' => $time,
             ]);
+    }
+
+    /**
+     * 获取所有模块.
+     */
+    public function getAllModules(): array
+    {
+        return $this->getConnection()
+            ->table('language_module')
+            ->get()
+            ->map(function ($item) {
+                return (array) $item;
+            })->toArray();
+    }
+
+    /**
+     * 批量更或者创建模块.
+     */
+    public function batchUpdateOrCreateModules(array $modules): void
+    {
+        if (! $modules) {
+            return;
+        }
+        $tablePrefix = $this->getConnection()->table('language_module')->getGrammar()->getTablePrefix();
+        // 批量更新配置
+        $time = time();
+        $insertModules = [];
+        foreach ($modules as $module) {
+            $module['created_at'] = $module['updated_at'] = $time;
+            $insertModules[] = "({$module['id']},'{$module['name']}', {$module['parent_id']}, '{$module['description']}', {$module['created_at']}, {$module['updated_at']})";
+        }
+        $insertModulesStr = implode(',', $insertModules);
+        $table = $tablePrefix . 'language_module';
+        $this->getConnection()->insert("insert into {$table} (id,`name`,parent_id, description, created_at, updated_at) values {$insertModulesStr} ON DUPLICATE KEY UPDATE `name` = values(`name`), parent_id = values(parent_id),  description = values(description),  updated_at = values(updated_at)");
     }
 
     /**
@@ -168,6 +203,58 @@ class LanguageService
             $item['children'] = $subModules->where('parent_id', $item['id'])->values()->toArray();
             return $item;
         })->toArray();
+    }
+
+    /**
+     * 批量添加或者更新翻译配置.
+     */
+    public function batchUpdateOrCreateTransConfigs(BatchUpdateOrCreateTransConfigCommand $command)
+    {
+        $time = time();
+        $configs = $transList = [];
+        foreach ($command->configs as $config) {
+            $configs[] = [
+                'module_id' => $config->module_id,
+                'entry_code' => $config->entry_code,
+                'entry_name' => $config->entry_name,
+                'description' => $config->description,
+                'created_at' => $time,
+                'updated_at' => $time,
+            ];
+            $transList[] = Collection::make($config->translations)->map(function (Translation $trans) use ($config, $time) {
+                return [
+                    'entry_code' => $config->entry_code,
+                    'locale' => $trans->getLocale(),
+                    'translation' => $trans->getTranslation(),
+                    'created_at' => $time,
+                    'updated_at' => $time,
+                ];
+            })->toArray();
+        }
+        if (! $configs) {
+            return;
+        }
+        $transList = array_merge(...$transList);
+        // 批量更新
+        $this->getConnection()->transaction(function () use ($configs, $transList) {
+            $tablePrefix = $this->getConnection()->table('language_config')->getGrammar()->getTablePrefix();
+            // 批量更新配置
+            $insertConfig = [];
+            foreach ($configs as $config) {
+                $insertConfig[] = "({$config['module_id']},'{$config['entry_code']}', '{$config['entry_name']}', '{$config['description']}', {$config['created_at']}, {$config['updated_at']})";
+            }
+            $insertConfigStr = implode(',', $insertConfig);
+            $table = $tablePrefix . 'language_config';
+            $this->getConnection()->insert("insert into {$table} (module_id,entry_code,entry_name, description, created_at, updated_at) values {$insertConfigStr} ON DUPLICATE KEY UPDATE module_id = values(module_id), entry_name = values(entry_name),  description = values(description),  updated_at = values(updated_at)");
+            // 批量更新翻译
+            $insertTrans = [];
+            foreach ($transList as $trans) {
+                $insertTrans[] = "({$trans['entry_code']},'{$trans['locale']}', '{$trans['translation']}', {$trans['created_at']}, {$trans['updated_at']})";
+            }
+            $insertTransStr = implode(',', $insertTrans);
+            $table = $tablePrefix . 'language_translation';
+            $this->getConnection()->insert("insert into {$table} (entry_code, locale, `translation`, created_at, updated_at) values {$insertTransStr} ON DUPLICATE KEY UPDATE  `translation` = values(`translation`),  updated_at = values(updated_at)");
+        });
     }
 
     /**
@@ -388,7 +475,27 @@ class LanguageService
         })->filter()->values()->toArray();
     }
 
-    protected function getConnection(): ConnectionInterface
+    /**
+     * 根据词条编码列表获取翻译.
+     */
+    public function getTranslations(array $entryCodes, string $locale = ''): array
+    {
+        if (! $entryCodes) {
+            return [];
+        }
+        $query = $this->getConnection()
+            ->table('language_translation')
+            ->whereIn('entry_code', $entryCodes);
+        if ($locale) {
+            $query->where('locale', $locale);
+        }
+        return $query->get()
+            ->map(function ($item) {
+                return (array) $item;
+            })->toArray();
+    }
+
+    public function getConnection(): ConnectionInterface
     {
         return Db::connection($this->config->getDbConnection());
     }
