@@ -249,7 +249,7 @@ class LanguageService
             // 批量更新翻译
             $insertTrans = [];
             foreach ($transList as $trans) {
-                $insertTrans[] = "({$trans['entry_code']},'{$trans['locale']}', '{$trans['translation']}', {$trans['created_at']}, {$trans['updated_at']})";
+                $insertTrans[] = "('{$trans['entry_code']}','{$trans['locale']}', '{$trans['translation']}', {$trans['created_at']}, {$trans['updated_at']})";
             }
             $insertTransStr = implode(',', $insertTrans);
             $table = $tablePrefix . 'language_translation';
