@@ -19,15 +19,18 @@ class Config extends AbstractDTO
 
     public string $description = '';
 
+    /**
+     * @var Translation[]
+     */
     public array $translations;
 
     public function validateRules(): array
     {
         return [
             'module_id' => 'required|integer',
-            'entry_code' => 'required|integer',
+            'entry_code' => 'required|string',
             'entry_name' => 'required|string',
-            'entry_desc' => 'string',
+            'description' => 'string',
         ];
     }
 }
