@@ -225,7 +225,7 @@ class LanguageService
                 return [
                     'entry_code' => $config->entry_code,
                     'locale' => $trans->getLocale(),
-                    'translation' => $trans->getTranslation(),
+                    'translation' => str_replace('\'', '\\\'', $trans->getTranslation()),
                     'created_at' => $time,
                     'updated_at' => $time,
                 ];
