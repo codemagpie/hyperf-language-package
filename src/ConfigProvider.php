@@ -21,13 +21,9 @@ class ConfigProvider
             'dependencies' => [
                 TransConfigInterface::class => TransConfig::class,
             ],
-            'processes' => [
-                TransConfigFetcherProcess::class,
-            ],
             'listeners' => [
                 ApplicationBootListener::class,
                 FetchTransConfigOnBootListener::class,
-                OnPipeMessageListener::class,
             ],
             'annotations' => [
                 'scan' => [

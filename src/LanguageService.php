@@ -495,6 +495,18 @@ class LanguageService
             })->toArray();
     }
 
+    public function getTransInfo(string $entryCode, string $locale): array
+    {
+        $info = $this->getConnection()
+            ->table('language_config')
+            ->leftJoin('language_translation', 'language_config.entry_code', '=', 'language_translation.entry_code')
+            ->select(['language_config.module_id', 'language_translation.entry_code', 'language_translation.locale', 'language_translation.translation'])
+            ->where('language_config.entry_code', '=', $entryCode)
+            ->where('language_translation.locale', '=', $locale)
+            ->first();
+        return $info ? (array) $info : [];
+    }
+
     public function getConnection(): ConnectionInterface
     {
         return Db::connection($this->config->getDbConnection());

@@ -21,6 +21,10 @@ class Config
 
     protected string $routePrefix;
 
+    protected array $moduleIds;
+
+    protected int $refreshRate;
+
     public function __construct(ConfigInterface $config)
     {
         $configArr = $config->get('douyu_language_translation') ?: [];
@@ -29,6 +33,8 @@ class Config
         $this->fallbackLocale = $configArr['fallback_locale'] ?? null;
         $this->replaceSymbol = $configArr['replace_symbol'] ?? ':fill';
         $this->routePrefix = $configArr['route_prefix'] ?? '';
+        $this->moduleIds = $config['load_modules'] ?? [];
+        $this->refreshRate = (int) ($configArr['refresh_rate'] ?? 60);
     }
 
     public function getDbConnection(): string
@@ -54,5 +60,15 @@ class Config
     public function getRoutePrefix(): string
     {
         return $this->routePrefix;
+    }
+
+    public function getModuleIds(): array
+    {
+        return $this->moduleIds;
+    }
+
+    public function getRefreshRate(): int
+    {
+        return $this->refreshRate;
     }
 }

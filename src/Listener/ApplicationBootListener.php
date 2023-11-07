@@ -9,7 +9,7 @@ namespace CodeMagpie\HyperfLanguagePackage\Listener;
 
 use CodeMagpie\HyperfLanguagePackage\Contract\TransConfigInterface;
 use CodeMagpie\HyperfLanguagePackage\LanguageService;
-use CodeMagpie\HyperfLanguagePackage\Utils\Timer;
+use CodeMagpie\HyperfLanguagePackage\Translator;
 use Hyperf\Contract\ConfigInterface;
 use Hyperf\Contract\StdoutLoggerInterface;
 use Hyperf\Event\Contract\ListenerInterface;
@@ -43,12 +43,12 @@ class ApplicationBootListener implements ListenerInterface
 
     public function process(object $event)
     {
-        Timer::refreshSyncAt(time());
         $this->syncTransConfig();
     }
 
-    protected function syncTransConfig()
+    protected function syncTransConfig(): void
     {
+        Translator::$updateAt = time();
         $this->logger->info(sprintf('%s language-package loading...', __CLASS__));
         // 进程启动前将翻译配置加载到进程内存中
         $parentModuleIds = $this->config->get('douyu_language_translation.load_modules');
