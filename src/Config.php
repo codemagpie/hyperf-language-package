@@ -33,7 +33,7 @@ class Config
         $this->fallbackLocale = $configArr['fallback_locale'] ?? null;
         $this->replaceSymbol = $configArr['replace_symbol'] ?? ':fill';
         $this->routePrefix = $configArr['route_prefix'] ?? '';
-        $this->moduleIds = $config['load_modules'] ?? [];
+        $this->moduleIds = $configArr['load_modules'] ?? [];
         $this->refreshRate = (int) ($configArr['refresh_rate'] ?? 60);
     }
 
