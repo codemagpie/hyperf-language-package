@@ -20,6 +20,8 @@ class Translator implements TranslatorInterface
 
     public static bool $refreshing = false;
 
+    public static array $loadDbData = [];
+
     protected TransConfigInterface $transConfig;
 
     protected LanguageService $languageService;
@@ -45,7 +47,7 @@ class Translator implements TranslatorInterface
         }
         // 从数据库加载
         if (! $trans) {
-            $trans = $this->lodeTransByDb($key, $locale);
+            $trans = $this->lodeTransByDb($key, $locale ?: $this->getLocale());
         }
         if ($trans === $key) {
             return $trans;
@@ -130,13 +132,24 @@ class Translator implements TranslatorInterface
         }
     }
 
-    protected function lodeTransByDb($key, $locale)
+    protected function lodeTransByDb(string $key, string $locale)
     {
+        // 判断进程是否有数据
+        if (count(self::$loadDbData) > 100) {
+            // 防止内存溢出
+            self::$loadDbData = [];
+        }
+        $flag = sprintf('%s-%s', $key, $locale);
+        if (isset(self::$loadDbData[$flag])) {
+            return self::$loadDbData[$flag];
+        }
         $transInfo = $this->languageService->getTransInfo($key, $locale);
         if ($transInfo) {
             $this->transConfig->set($transInfo['module_id'], $transInfo['entry_code'], $transInfo['locale'], $transInfo['translation']);
             return $transInfo['translation'];
         }
+        // 将没有命中的数据库的推到进程内存中，防止多次访问数据库
+        self::$loadDbData[$flag] = $key;
         return $key;
     }
 
