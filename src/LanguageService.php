@@ -15,6 +15,7 @@ use CodeMagpie\HyperfLanguagePackage\DTO\Command\UpdateTransConfigCommand;
 use CodeMagpie\HyperfLanguagePackage\DTO\Meta\Translation;
 use Hyperf\Database\ConnectionInterface;
 use Hyperf\DbConnection\Db;
+use Hyperf\Utils\ApplicationContext;
 use Hyperf\Utils\Collection;
 
 class LanguageService
@@ -255,6 +256,7 @@ class LanguageService
             $table = $tablePrefix . 'language_translation';
             $this->getConnection()->insert("insert into {$table} (entry_code, locale, `translation`, created_at, updated_at) values {$insertTransStr} ON DUPLICATE KEY UPDATE  `translation` = values(`translation`),  updated_at = values(updated_at)");
         });
+        ApplicationContext::getContainer()->get(Translator::class)->refresh(false);
     }
 
     /**

@@ -92,7 +92,7 @@ class Translator implements TranslatorInterface
         }
         // 判断频率内是否刷新过
         $refreshRate = $this->config->getRefreshRate();
-        if (self::$updateAt + $refreshRate > time()) {
+        if ($async && self::$updateAt + $refreshRate > time()) {
             return;
         }
         self::$refreshing = true;
